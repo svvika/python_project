@@ -1,6 +1,6 @@
 import pygame
 pygame.init()
-screen = pygame.display.set_mode((1000, 700))
+screen = pygame.display.set_mode((800, 600),pygame.RESIZABLE)
 pygame.display.set_caption("tajna")
 running = True
 while running:
