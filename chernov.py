@@ -156,9 +156,6 @@ while 1:
             sc.blit(dweller2, (710, 400))
             sc.blit(player_back, (player_x, 420))
 
-
-
-
     if keys[pygame.K_LEFT] and player_x1 > 0:
         player_x -= player_speed
         player_x1 -= player_speed
