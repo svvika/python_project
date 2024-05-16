@@ -65,7 +65,16 @@ def village(state):
                                      "slide6": "images/slide6.jpg",
                                      "slide7": "images/slide7.png",
                                      "slide8": "images/slide8.png",
-                                     "slide9": "images/slide9.jpg"
+                                     "slide9": "images/slide9.png",
+                                     "slide10": "images/slide10.png",
+                                     "slide11": "images/slide11.png",
+                                     "slide12": "images/slide12.png",
+                                     "slide13": "images/slide13.jpg",
+                                     "slide14": "images/slide14.jpg",
+                                     "slide15": "images/slide15.jpg",
+                                     "swamp": "images/swamp.jpg",
+                                     "izbushka": "images/izbushka.jpg",
+                                     "ovrag": "images/ovrag.jpg"
                                      })
 
         coords_list = json.loads(open("coordinates.json","r").read())
@@ -98,8 +107,6 @@ def village(state):
                 (32,120),{"asdasd":"images/dweller1.png"})
         state["village"]["triggers"]["house2"].func = swixtch
         state["village"]["triggers"]["house2"].default_params = ["insects"]
-        state["village"]["triggers"]["house3"].func = swixtch
-        state["village"]["triggers"]["house3"].default_params = ["stars"]
 
         
         state["village"]["slide_no"] = 1
