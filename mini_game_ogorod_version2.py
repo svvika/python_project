@@ -136,6 +136,9 @@ def run():
                 count.plus(1)
                 objects.pop(i)
 
+        if int(count.count) == ogorod_info.WIN_COUNT:
+            break
+
         player.output()
         count.output()
         pygame.display.update()
