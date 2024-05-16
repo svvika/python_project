@@ -2,14 +2,13 @@ import pygame
 import sys
 import random
 
-
-
-
 ERROR_IMAGE = pygame.image.load("error.png")
 random.seed()
 
-class GameEntity():
-    def __init__(self,pos: tuple=(0,0),size: tuple=(0,0),sprite_named_filenames: dict = {"default":"error.png"},rot=0.0):
+
+class GameEntity:
+    def __init__(self, pos: tuple = (0, 0), size: tuple = (0, 0),
+                 sprite_named_filenames: dict = {"default": "error.png"}, rot=0.0):
         self.id = random.randint(1, sys.maxsize)
         print(self.id)
         self.pos = pos
@@ -27,38 +26,40 @@ class GameEntity():
         self.current_sprite = self.default_sprite
         if not (size[0] and size[1]):
             self.size = self.default_sprite.get_size()
-    def render(self,screen):
+
+    def render(self, screen):
         try:
             sprite = self.sprites[self.current_sprite]
         except:
             sprite = self.default_sprite
         sprite_size = self.size
-        #print(tuple([sprite_size[0]*global_scale,sprite_size[1]*global_scale]))
+        # print(tuple([sprite_size[0]*global_scale,sprite_size[1]*global_scale]))
         global global_scale
         global global_offset
         screen.blit(
             pygame.transform.rotate(
-            pygame.transform.scale(sprite,\
-                    tuple([sprite_size[0]*global_scale,\
-                        sprite_size[1]*global_scale])),self.rot),\
-                    tuple([(self.pos[0]-global_offset[0])*global_scale,(self.pos[1]-global_offset[1])*global_scale])
-                    
-                    )
+                pygame.transform.scale(sprite, tuple([sprite_size[0] * global_scale, sprite_size[1] * global_scale])), self.rot), tuple([(self.pos[0] - global_offset[0]) * global_scale, (self.pos[1] - global_offset[1]) * global_scale])
+        )
+
 
 class Trigger(GameEntity):
-    def __init__(self,pos: tuple=(0,0),size: tuple=(0,0),sprite_named_filenames: dict = {"default":"error.png"},\
-                func=lambda x : x,type={},default_params=[],key=pygame.K_UP):
-        super().__init__(pos,size,sprite_named_filenames)
+    def __init__(self, pos: tuple = (0, 0), size: tuple = (0, 0),
+                 sprite_named_filenames: dict = {"default": "error.png"},
+                 func=lambda x: x, type={}, default_params=[], key=pygame.K_UP):
+        super().__init__(pos, size, sprite_named_filenames)
         self.func = func
         self.default_params = default_params
         self.type = type
         self.key = key
         self.fired = False
-    def collides(self,entity):
-        return pygame.Rect(self.pos,self.size).colliderect(pygame.Rect(entity.pos,entity.size))
-    def contains(self,entity):
-        return pygame.Rect(self.pos,self.size).contains(pygame.Rect(entity.pos,entity.size))
-    def check(self,state,target,params=[]):
+
+    def collides(self, entity):
+        return pygame.Rect(self.pos, self.size).colliderect(pygame.Rect(entity.pos, entity.size))
+
+    def contains(self, entity):
+        return pygame.Rect(self.pos, self.size).contains(pygame.Rect(entity.pos, entity.size))
+
+    def check(self, state, target, params=[]):
         if not params:
             params = self.default_params
         check_result = set()
@@ -68,47 +69,53 @@ class Trigger(GameEntity):
             check_result.add("key")
         if check_result == self.type and not self.fired:
             self.fired = True
-            return self.func(state,*params)
+            return self.func(state, *params)
         else:
             return state
 
+
 class Scene(GameEntity):
-    def __init__(self,pos: tuple=(0,0),size: tuple=(0,0),sprite_named_filenames: dict = {"default":"error.png"}):
-        super().__init__(pos,size,sprite_named_filenames)
+    def __init__(self, pos: tuple = (0, 0), size: tuple = (0, 0),
+                 sprite_named_filenames: dict = {"default": "error.png"}):
+        super().__init__(pos, size, sprite_named_filenames)
+
 
 class Text():
-    def __init__(self,pos: tuple=(0,0),size: int = 16,font_name="Arial",text="",colour='WHITE'):
+    def __init__(self, pos: tuple = (0, 0), size: int = 16, font_name="Arial", text="", colour='WHITE'):
         self.pos = pos
         self.size = size
         self.text = text
         self.colour = colour
         try:
-            self.font = pygame.font.Font(font_name,self.size)
+            self.font = pygame.font.Font(font_name, self.size)
         except:
             try:
-                self.font = pygame.font.SysFont(font_name,self.size)
+                self.font = pygame.font.SysFont(font_name, self.size)
             except:
-                self.font = pygame.font.SysFont("Arial",self.size)
-    def render(self,screen):
+                self.font = pygame.font.SysFont("Arial", self.size)
+
+    def render(self, screen):
         global global_scale
         global global_offset
         line_no = 0
         for line in self.text.split("\n"):
             line_no += 1
-            screen.blit(self.font.render(line,True,self.colour),\
-            tuple([(self.pos[0]-global_offset[0])*global_scale,(self.pos[1]-global_offset[1]+line_no*self.size)*global_scale]))
+            screen.blit(self.font.render(line, True, self.colour), \
+                        tuple([(self.pos[0] - global_offset[0]) * global_scale,
+                               (self.pos[1] - global_offset[1] + line_no * self.size) * global_scale]))
+
 
 def init(m):
     global FPS
     FPS = 60
     global window_width
-    window_width = 800  
+    window_width = 800
     global window_height
     window_height = 600
     global global_scale
     global_scale = 1
     global global_offset
-    global_offset = [0,0]
+    global_offset = [0, 0]
     global SCREEN
     SCREEN = pygame.display.set_mode((window_width, window_height))
     global clock
@@ -116,6 +123,7 @@ def init(m):
     global minigames
     minigames = m
     pygame.init()
+
 
 def run(entry_minigame_name):
     global global_scale
@@ -141,7 +149,7 @@ def run(entry_minigame_name):
                 tw = pygame.display.get_desktop_sizes()[0][0]
                 th = pygame.display.get_desktop_sizes()[0][1]
                 global_scale = th / 600
-                SCREEN = pygame.display.set_mode((th*4//3,th),pygame.FULLSCREEN)
+                SCREEN = pygame.display.set_mode((th * 4 // 3, th), pygame.FULLSCREEN)
             fullscreen_last = pygame.time.get_ticks()
             fullscreen = not fullscreen
         minigame_state = current_minigame(minigame_state)
