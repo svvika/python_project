@@ -1,6 +1,7 @@
 import engine
 import village
 import insects
-
-engine.init({"village": village.village, "insects": insects.insects})
+import stars
+engine.init({"village":village.village,"insects":insects.insects,\
+             "stars":stars.stars})
 engine.run("village")
