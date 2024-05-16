@@ -98,6 +98,8 @@ def village(state):
                 (32,120),{"asdasd":"images/dweller1.png"})
         state["village"]["triggers"]["house2"].func = swixtch
         state["village"]["triggers"]["house2"].default_params = ["insects"]
+        state["village"]["triggers"]["house3"].func = swixtch
+        state["village"]["triggers"]["house3"].default_params = ["stars"]
 
         
         state["village"]["slide_no"] = 1
