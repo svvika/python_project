@@ -43,8 +43,13 @@ def insects(state):
         state["insects"]["scene"].current_sprite = "end"
         if state["insects"]["lives"] <= 0:
             state["insects"]["end_text"].text = "Вы не справились с заданием жителя" + "\nУ вас осталось " + str(3) + " попытки"
+            state["progress"]["insects"]["attempts"] -= 1
+            if state["progress"]["insects"]["attempts"] <= 0:
+                state["progress"]["insects"] = {"available":False, "completed":False}
+
         else:
             state["insects"]["end_text"].text = "Вы справились с заданием жителя" + "\nЗаписка получена!"
+            state["progress"]["insects"] = {"available":False, "completed":True}
         if state["insects"]["switchdelay"] <= 0:
             del state["insects"] # нам больше не нужно текущее состояние этой миниигры
             state["SWITCH"] = "village"
