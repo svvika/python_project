@@ -1,13 +1,21 @@
 import engine
 import pygame
 import json
-import marshal
+import notes
 
 def swixtch(state,task_name):
     print("S")
     if state["progress"][task_name]["available"]:
         state["current_task"] = task_name
         state["SWITCH"] = task_name[:-1]
+    return state
+
+def it_give(state,task_name):
+    print("G")
+    if state["progress"][task_name]["available"]:
+        state["progress"][task_name]["completed"] = True
+        state["progress"][task_name]["available"] = False
+        pygame.mixer.Channel(1).play(pygame.mixer.Sound('sounds/item_get.mp3'))
     return state
 
 def slide_switch(state,slide_no,x=21):
@@ -18,7 +26,27 @@ def slide_switch(state,slide_no,x=21):
     state["village"]["entities"]["player"].pos = \
     ((slide_no-1)*800+x,\
     state["village"]["entities"]["player"].pos[1])
+    print(state["village"]["slide_no"])
     return state
+
+def ending(state,character):
+    all_availables = False
+    all_visiteds = True
+    for key in state["progress"]:
+        if type(state["progress"][key]) is dict:
+            if "available" in state["progress"][key].keys():
+                all_availables = all_availables or state["progress"][key]["available"]
+            elif "visited" in state["progress"][key].keys():
+                all_visiteds = all_visiteds and state["progress"][key]["visited"]
+            if all_availables or (not all_visiteds):
+                return state
+    if not (all_availables) and all_visiteds:
+        if character == state["progress"]["character"]:
+            state["village"]["scene"].current_sprite += "W"
+        else:
+            state["village"]["scene"].current_sprite += "L"
+        state["village"]["halt_player"] = True
+        return state
 
 def trigger_name(state,text):
     print(text)
@@ -37,7 +65,8 @@ class House():
         state["village"]["triggers"][self.name].fired = False
         if not state["progress"][self.name]["visited"]:
             if not self.name in state["village"]["texts"]:
-                state["village"]["texts"][self.name] = engine.Text(((state["village"]["slide_no"]-1)*800+300,300),width=300,colour="BLACK",box_colour=(208, 176, 132, 255))
+                state["village"]["texts"][self.name] = engine.Text(((state["village"]["slide_no"]-1)*800+300,300),width=300,colour="BLACK",
+                                                                   box_colour=(208, 176, 132, 255))
             print(self.name)
             state["village"]["entities"]["player"].current_sprite = "back"
             state["village"]["entities"]["dweller"+str(self.note)] = self.dweller
@@ -52,9 +81,13 @@ class House():
                 del state["village"]["entities"]["dweller"+str(self.note)]
                 del state["village"]["texts"][self.name]
         elif state["progress"][self.task]["completed"]:
+            print("NOTE GIVEN")
             state["village"]["triggers"][self.name].fired = True
             state["progress"]["notes"][self.note] = True
             print(self.note)
+            pygame.mixer.Channel(1).play(pygame.mixer.Sound('sounds/note_get.mp3'))
+        else:
+            print(state["progress"][self.task]["completed"],state["progress"]["notes"][self.note])
             
         return state
     def render(self,screen):
@@ -62,21 +95,28 @@ class House():
     
 def village(state):
     if not state["initialised"]:
-        state["village"] = dict()
+        if not "village" in state:
+            state["village"] = dict()
         state["hchchc"] = 0
         state["twetwet"] = 1
-        state["village"]["entities"] = dict()
+        state["village"]["inventory"] = False
+        state["village"]["reading"] = False
         state["village"]["triggers"] = dict()
         state["village"]["texts"] = dict()
         state["village"]["halt_player"] = False
-        state["village"]["entities"]["player"] = engine.GameEntity((57,442),(32,120),
-                                    {"default": "images/player_left.png",
-                                    "left2": "images/player_left2.png",
-                                    "right": "images/player_right.png",
-                                    "right2": "images/player_right2.png",
-                                    "front": "images/player_front.png",
-                                    "back":"images/player_back.png"
-                                    })
+        state["village"]["texts"]["note_display"] = engine.Text((0, 0),
+            size=30,width=600,colour="BLACK",box_colour=(208, 176, 132, 0),font_name="advent.ttf")
+        if not "entities" in state["village"]:
+            state["village"]["entities"] = dict()
+        if not "player" in state["village"]["entities"]:
+            state["village"]["entities"]["player"] = engine.GameEntity((57,442),(32,120),
+                                        {"default": "images/player_left.png",
+                                        "left2": "images/player_left2.png",
+                                        "right": "images/player_right.png",
+                                        "right2": "images/player_right2.png",
+                                        "front": "images/player_front.png",
+                                        "back":"images/player_back.png"
+                                        })
         state["village"]["scene"] = engine.Scene(size=(800,600),sprite_named_filenames=\
                                     {"slide1": "images/slide1.jpg",
                                      "slide2": "images/slide2.jpg",
@@ -87,15 +127,20 @@ def village(state):
                                      "slide7": "images/slide7.png",
                                      "slide8": "images/slide8.png",
                                      "slide9": "images/slide9.png",
+                                     "slide9L": "images/slide9_L.jpg",
+                                     "slide9W": "images/slide9_W.png",
                                      "slide10": "images/slide10.png",
                                      "slide11": "images/slide11.png",
                                      "slide12": "images/slide12.png",
+                                     "slide12L": "images/slide12.png",
+                                     "slide12W": "images/slide12_W.png",
                                      "slide13": "images/slide13.jpg",
                                      "slide14": "images/slide14.jpg",
+                                     "slide14L": "images/slide14_L.jpg",
+                                     "slide14W": "images/slide14_W.png",
                                      "slide15": "images/slide15.jpg",
-                                     "swamp": "images/swamp.jpg",
-                                     "izbushka": "images/izbushka.jpg",
-                                     "ovrag": "images/ovrag.jpg"
+                                     "slide15L": "images/slide15_L.jpg",
+                                     "slide15W": "images/slide15_W.png",
                                      })
 
         coords_list = json.loads(open("coordinates.json","r",encoding="utf-8").read())
@@ -112,16 +157,23 @@ def village(state):
                 sprite_named_filenames={"default":"images/trigger.png"},cooldown=120)
             elif coords[:2] == "fo":
                 state["village"]["triggers"][coords] = engine.Trigger(pos, size,\
-                func=slide_switch,default_params=[int(coords[-1:])+6,400],type={"collides","key"},\
-                sprite_named_filenames={"default":"images/trigger.png"})
-            elif coords[:2] == "og" or coords[:2] == "hi":
+                func=slide_switch,default_params=[coords_list[coords][4],400],type={"collides","key"},\
+                sprite_named_filenames={"default":"images/trigger.png"},once=False)
+            elif coords[:2] == "ex":
+                state["village"]["triggers"][coords] = engine.Trigger(pos, size,\
+                func=slide_switch,default_params=[coords_list[coords][4],400],type={"collides","key"},key=pygame.K_DOWN,\
+                sprite_named_filenames={"default":"images/trigger.png"},once=False)
+            elif coords[:2] == "og":
                 state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},
                                 type={"collides","key"}, func=swixtch,default_params=[coords_list[coords][6]],
                                 once=False)
-            elif coords[:2] == "we":
-                state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"})
-            elif coords[:2] == "za":
-                state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"})
+            elif coords[:2] == "en":
+                state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},
+                                type={"collides","key"}, func=ending,default_params=[coords_list[coords][4]],
+                                once=False)
+            elif coords[:2] == "it":
+                state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},type={"collides","key"},
+                func=it_give,default_params=[coords_list[coords][4]],once=False)
             #state["village"]["texts"][coords] = engine.Text(pos,text=coords)
 
                 
@@ -131,8 +183,51 @@ def village(state):
         #state["village"]["triggers"]["hill"].func = swixtch
         #state["village"]["triggers"]["hill"].default_params = ["stars"]
         
-        state["village"]["slide_no"] = 1
+        if not "slide_no" in state["village"]:
+            state["village"]["slide_no"] = 1
+        else:
+            slide_switch(state,state["village"]["slide_no"],x=400)
+
+        state["village"]["music"] = pygame.mixer.music.load("sounds/village.mp3")
+        pygame.mixer.music.play(-1)
         state["initialised"] = True
+
+    if state["k"][pygame.K_TAB]:
+        state["village"]["halt_player"] = True
+        if not state["village"]["inventory"]:
+            state["village"]["inventory"] = True
+            note_no = 1
+            for note in state["progress"]["notes"][1:]:
+                colour = "BLACK" if note else "dimgrey"
+                box_colour = (208, 176, 132, 255) if note else (208, 176, 132, 192)
+                state["village"]["texts"]["thum"+str(note_no)] =\
+                engine.Text(((state["village"]["slide_no"]-1)*800+note_no*70,30),text=" "+str(note_no),
+                            size=30,width=30,colour=colour,box_colour=box_colour,font_name="advent.ttf")
+                note_no += 1
+    else:
+        if state["village"]["inventory"]:
+            state["village"]["halt_player"] = False
+            state["village"]["inventory"] = False
+            for n in range(1,10):
+                del state["village"]["texts"]["thum"+str(n)]
+
+    number_pressed = 0
+    for keycode in range(49, 58):
+        if state["k"][keycode]:
+            number_pressed = keycode-48
+    if number_pressed and state["progress"]["notes"][number_pressed]:
+        if not state["village"]["reading"]:
+            state["village"]["halt_player"] = True
+            state["village"]["reading"] = True
+            state["village"]["texts"]["note_display"].text = notes.notes[number_pressed]
+            state["village"]["texts"]["note_display"].pos = ((state["village"]["slide_no"]-1)*800+100,70)
+            state["village"]["texts"]["note_display"].box_colour = (208, 176, 132, 255)
+    else:
+        if state["village"]["reading"]:   
+            state["village"]["halt_player"] = False
+            state["village"]["reading"] = False
+            state["village"]["texts"]["note_display"].text = ""
+            state["village"]["texts"]["note_display"].box_colour = (208, 176, 132, 0)
 
     if not state["village"]["halt_player"]:
         if state["k"][pygame.K_RIGHT]:
@@ -149,14 +244,14 @@ def village(state):
     #    state["entities"]["player"].current_sprite = "front"
     if state["village"]["entities"]["player"].pos[0] % 800 > 780:
         if state["village"]["slide_no"] in {6,15}:
-            state["village"]["entities"]["player"].pos = (state["village"]["entities"]["player"].pos[0]-20,state["village"]["entities"]["player"].pos[1])
+            state["village"]["entities"]["player"].pos = (state["village"]["entities"]["player"].pos[0]-7,state["village"]["entities"]["player"].pos[1])
         else:
             state["village"]["slide_no"] += 1
             slide_switch(state,state["village"]["slide_no"])
     
     if state["village"]["entities"]["player"].pos[0] % 800 < 20:
         if state["village"]["slide_no"] in {1,7}:
-            state["village"]["entities"]["player"].pos = (state["village"]["entities"]["player"].pos[0]+20,state["village"]["entities"]["player"].pos[1])
+            state["village"]["entities"]["player"].pos = (state["village"]["entities"]["player"].pos[0]+7,state["village"]["entities"]["player"].pos[1])
         else:
             state["village"]["slide_no"] -= 1
             slide_switch(state,state["village"]["slide_no"],x=779)
