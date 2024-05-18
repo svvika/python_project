@@ -41,17 +41,21 @@ def prologue(state):
                          "персонажа вам помогут местные жители, готовые рассказать, что знают, за небольшую помощь. "
                          "Искать следует в месте, которое чаще всего упоминается как место этого "
                          "существа. Поговорив со всеми жителями, отправляйся, ни на что не отвлекаясь, на поиски "
-                         "нужной локаци.").format(state["progress"]["character"])
+
+                         "нужной локации.").format(state["progress"]["character"])
+
         goodluck_text = "Удачи!"
-        hint_text = "ДВИЖЕНИЕ - СТРЕЛКИ ВПРАВО И ВЛЕВО; ДЕЙСТВИЕ - СТРЕЛКА ВВЕРХ."
-        switch_text = "НАЗАД ИЗ ЛЕСА - СТРЕЛКА ВНИЗ. НАЖМИТЕ ВВЕРХ, ЧТОБЫ НАЧАТЬ."
+        hint_text = "Кнопки:\nХодить: ВПРАВО, ВЛЕВО\nДействие: ВВЕРХ\nВыйти из леса: ВНИЗ\nНайти сущ-во: Enter\nИнвентарь: Tab\nЧитать записку: 0-9\nНажмите ВВЕРХ,\n чтобы играть!"
+        switch_text = " "
         text_x = 25
         text_w = 740
         ps["texts"] = {
             "hello": engine.Text((text_x, 60), size=29, width=text_w, text=hello_text, font_name="advent.ttf"),
             "greeting": engine.Text((text_x, 102), size=24, width=text_w, text=greeting_text, font_name="advent.ttf"),
             "goodluck": engine.Text((text_x, 280), size=24, width=text_w, text=goodluck_text, font_name="advent.ttf"),
-            "hint": engine.Text((7, 558), size=18, width=800, text=hint_text, font_name="advent.ttf"),
+
+            "hint": engine.Text((340, 280), size=18, width=800, text=hint_text, font_name="advent.ttf"),
+
             "switch": engine.Text((7, 578), size=18, width=800, text=switch_text, font_name="advent.ttf")
         }
         state["initialised"] = True

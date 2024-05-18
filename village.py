@@ -3,6 +3,8 @@ import pygame
 import json
 import notes
 
+# испр. выход из леса
+
 def swixtch(state,task_name):
     print("S")
     if state["progress"][task_name]["available"]:
@@ -42,9 +44,13 @@ def ending(state,character):
                 return state
     if not (all_availables) and all_visiteds:
         if character == state["progress"]["character"]:
-            state["village"]["scene"].current_sprite += "W"
+            if state["village"]["scene"].current_sprite[-1:] != "W":
+                state["village"]["scene"].current_sprite += "W"
+                state["village"]["texts"]["end_text"] = engine.Text((100,100),size=32,width=600,text="Вы выиграли!")
         else:
-            state["village"]["scene"].current_sprite += "L"
+            if state["village"]["scene"].current_sprite[-1:] != "L":
+                state["village"]["scene"].current_sprite += "L"
+                state["village"]["texts"]["end_text"] = engine.Text((100,100),size=32,width=600,text="Вы проиграли")
         state["village"]["halt_player"] = True
         return state
 
@@ -170,7 +176,7 @@ def village(state):
             elif coords[:2] == "en":
                 state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},
                                 type={"collides","key"}, func=ending,default_params=[coords_list[coords][4]],
-                                once=False)
+                                once=False,key=pygame.pygame.K_RETURN)
             elif coords[:2] == "it":
                 state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},type={"collides","key"},
                 func=it_give,default_params=[coords_list[coords][4]],once=False)
