@@ -129,6 +129,9 @@ class Text():
         for line in line_surfaces:
             box.blit(line,(0,line_no*self.size))
             line_no += 1
+        box = pygame.transform.scale(box,\
+                    tuple([self.width*global_scale,\
+                        total_height*global_scale]))
         screen.blit(box,\
         tuple([(self.pos[0]-global_offset[0])*global_scale,(self.pos[1]-global_offset[1])*global_scale]))
 
@@ -146,7 +149,9 @@ def init(m):
     window_height = 600
     global_scale = 1
     global_offset = [0,0]
+    pygame.display.set_icon(pygame.image.load("images/icon.png"))
     SCREEN = pygame.display.set_mode((window_width, window_height))
+    pygame.display.set_caption("Тайна деревни")
     clock = pygame.time.Clock()
     minigames = m
     pygame.init()
@@ -159,6 +164,7 @@ def run(entry_minigame_name):
     fullscreen_last = pygame.time.get_ticks()
     minigame_state = dict()
     minigame_state["SWITCH"] = False
+    minigame_state["DO_NOT_REINIT"] = False
     minigame_state["initialised"] = False
     current_minigame = minigames[entry_minigame_name]
     while game_running:
@@ -183,7 +189,10 @@ def run(entry_minigame_name):
             print("SW")
             current_minigame = minigames[minigame_state["SWITCH"]]
             global_offset = [0,0]
+            pygame.mixer.music.stop()
+            pygame.mixer.music.unload()
             minigame_state["SWITCH"] = False
-            minigame_state["initialised"] = False
+            minigame_state["initialised"] = minigame_state["DO_NOT_REINIT"]
+            minigame_state["DO_NOT_REINIT"] = False
         pygame.display.update()
         clock.tick(FPS)
