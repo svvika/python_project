@@ -37,20 +37,22 @@ def insects(state):
         state["insects"]["end_text"] = engine.Text((40, 240), size=40, colour = "RED")
 
         state["initialised"] = True
-
+    #print(state["progress"][state["current_task"]]["attempts"])
     if state["insects"]["lives"] <= 0 or state["insects"]["score"] <= 0:
         print("GO")
         state["insects"]["scene"].current_sprite = "end"
         if state["insects"]["lives"] <= 0:
-            state["insects"]["end_text"].text = "Вы не справились с заданием жителя" + "\nУ вас осталось " + str(3) + " попытки"
-            state["progress"]["insects"]["attempts"] -= 1
-            if state["progress"]["insects"]["attempts"] <= 0:
-                state["progress"]["insects"] = {"available":False, "completed":False}
+            state["insects"]["end_text"].text = "Мухи одолели Вас. Осталось попыток: "\
+            + str(state["progress"][state["current_task"]]["attempts"] - 1)
+
 
         else:
-            state["insects"]["end_text"].text = "Вы справились с заданием жителя" + "\nЗаписка получена!"
-            state["progress"]["insects"] = {"available":False, "completed":True}
+            state["insects"]["end_text"].text = "Вы победили!\nПриходите к жителю за запиской."
+            state["progress"][state["current_task"]] = {"available":False, "attempts": 0, "completed":True}
         if state["insects"]["switchdelay"] <= 0:
+            state["progress"][state["current_task"]]["attempts"] -= 1
+            if state["progress"][state["current_task"]]["attempts"] <= 0:
+                state["progress"][state["current_task"]] = {"available":False, "completed":False}
             del state["insects"] # нам больше не нужно текущее состояние этой миниигры
             state["SWITCH"] = "village"
         else:
