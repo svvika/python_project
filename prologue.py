@@ -31,10 +31,10 @@ def prologue(state):
             "house7": {"visited": False, "completed": False},
             "house8": {"visited": False},
             "house9": {"visited": False},
-            "notes": [False, False, False, False, False, False, False, False, False]
+            "notes": [False, False, False, False, False, False, False, False, False, False]
         }
         ps = state["prologue"]
-        ps["scene"] = engine.Scene(size=(800, 600), sprite_named_filenames={"default": "prologue_bg.jpg"})
+        ps["scene"] = engine.Scene(size=(800, 600), sprite_named_filenames={"default": "images/prologue_bg.jpg"})
         hello_text = "Добро пожаловать!"
         greeting_text = ("Вы студент-участник экспедиции в деревню, в округе которой, как ходят слухи, обитают лесные "
                          "существа из древнерусской мифологии. Ваша цель - доказать, что существует {0}. Найти этого "
@@ -49,7 +49,7 @@ def prologue(state):
         ps["texts"] = {
             "hello": engine.Text((text_x, 85), size=29, width=text_w, text=hello_text, font_name="advent.ttf"),
             "greeting": engine.Text((text_x, 125), size=24, width=text_w, text=greeting_text, font_name="advent.ttf"),
-            "goodluck": engine.Text((text_x, 245), size=24, width=text_w, text=goodluck_text, font_name="advent.ttf"),
+            "goodluck": engine.Text((text_x, 280), size=24, width=text_w, text=goodluck_text, font_name="advent.ttf"),
             "hint": engine.Text((7, 562), size=18, width=800, text=hint_text, font_name="advent.ttf"),
             "switch": engine.Text((7, 582), size=18, width=800, text=switch_text, font_name="advent.ttf")
         }
