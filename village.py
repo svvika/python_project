@@ -276,7 +276,7 @@ def village(state):
 
     for trigger in state["village"]["triggers"].values():
         state = trigger.check(state,state["village"]["entities"]["player"])
-        trigger.render(engine.SCREEN)
+        #trigger.render(engine.SCREEN)
 
     for entity in state["village"]["entities"].values():
         entity.render(engine.SCREEN)
