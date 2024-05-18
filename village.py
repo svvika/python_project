@@ -176,7 +176,7 @@ def village(state):
             elif coords[:2] == "en":
                 state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},
                                 type={"collides","key"}, func=ending,default_params=[coords_list[coords][4]],
-                                once=False,key=pygame.pygame.K_RETURN)
+                                once=False,key=pygame.K_RETURN)
             elif coords[:2] == "it":
                 state["village"]["triggers"][coords] = engine.Trigger(pos, size,{"default":"images/trigger.png"},type={"collides","key"},
                 func=it_give,default_params=[coords_list[coords][4]],once=False)
